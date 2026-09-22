@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# コーデ採点ゲーム
 
-## Getting Started
+自分のコーディネートをカメラで撮影すると、AIがプロのスタイリスト視点で採点し、フラットカラーのイラストに変換してくれるWebアプリです。採点結果はランキングで他のユーザーと比較できます。
 
-First, run the development server:
+## 使用技術
+
+- **フレームワーク**: [Next.js](https://nextjs.org) 16 (App Router) / React 19 / TypeScript
+- **スタイリング**: Tailwind CSS 4
+- **認証・DB・ストレージ**: [Supabase](https://supabase.com)（匿名認証、Postgres、Storage）
+- **AI採点**: [Anthropic API](https://www.anthropic.com)（Claude）— 配色・バランス・似合い度の3観点でコーディネートを採点
+- **AIイラスト生成**: [Google Gemini API](https://ai.google.dev)（`gemini-2.5-flash-image`）— 撮影写真をフラットカラーのイラスト風に変換
+- **デプロイ**: [Vercel](https://vercel.com)
+
+## 遊び方
+
+1. **ログイン**: `/login` でニックネーム（任意）を入力し「ゲストとして始める」を押すと、メール登録なしですぐに遊べます。
+2. **撮影**: `/outfits/new` でカメラを起動し、今日のコーディネートを撮影（またはアルバムから写真を選択）します。
+3. **保存・採点**: 「保存する」を押すと写真がアップロードされ、AIが以下の3項目を自動採点します。
+   - 配色のバランス
+   - 全体のシルエット・アイテムバランス
+   - 本人への似合い度
+   同時に、写真をもとにしたフラットカラーのイラストも生成されます。
+4. **コレクション**: `/collection` でこれまで撮影したコーデ一覧と、それぞれのスコア・AIコメントを確認できます。
+5. **ランキング**: `/ranking` でスコア上位100件のコーデを閲覧できます。タップするとイラストを確認できます。
+
+## 開発環境のセットアップ
+
+```bash
+npm install
+```
+
+`.env.local` に以下の環境変数を設定してください。
+
+```
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+ANTHROPIC_API_KEY=
+GEMINI_API_KEY=
+```
+
+開発サーバーを起動します（`http://localhost:3001` で起動します）。
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
