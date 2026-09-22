@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { scoreOutfit } from "@/app/actions/score";
+import { illustrateOutfit } from "@/app/actions/illustrate";
 
 export default function NewOutfitPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -125,7 +126,10 @@ export default function NewOutfitPage() {
     }
 
     setStatus("scoring");
-    await scoreOutfit(inserted.id);
+    await Promise.all([
+      scoreOutfit(inserted.id),
+      illustrateOutfit(inserted.id),
+    ]);
 
     window.location.href = "/collection";
   }
@@ -206,7 +210,7 @@ export default function NewOutfitPage() {
             {status === "saving"
               ? "保存中..."
               : status === "scoring"
-                ? "AIが採点中..."
+                ? "AIが採点・イラスト生成中..."
                 : "保存する"}
           </button>
         </div>

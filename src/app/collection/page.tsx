@@ -16,7 +16,7 @@ export default async function CollectionPage() {
 
   const { data: outfits } = await supabase
     .from("outfits")
-    .select("id, photo_url, score_total, comment")
+    .select("id, photo_url, illustration_url, score_total, comment")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
@@ -57,11 +57,17 @@ export default async function CollectionPage() {
             <div key={outfit.id} className="flex flex-col gap-1">
               <div className="relative aspect-square w-full overflow-hidden rounded-md bg-gray-100">
                 <Image
-                  src={outfit.photo_url}
+                  src={outfit.illustration_url ?? outfit.photo_url}
                   alt="撮影したコーデ"
                   fill
+                  sizes="(min-width: 640px) 33vw, 50vw"
                   className="object-cover"
                 />
+                {!outfit.illustration_url && (
+                  <p className="absolute bottom-1 right-1 rounded bg-black/60 px-1.5 py-0.5 text-[10px] text-white">
+                    イラスト生成中...
+                  </p>
+                )}
               </div>
               <p className="text-xs font-semibold text-gray-700">
                 {outfit.score_total != null
