@@ -23,7 +23,7 @@ export default function NewOutfitPage() {
     async function startCamera() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "user" },
+          video: { facingMode: "environment" },
           audio: false,
         });
         if (cancelled) {
