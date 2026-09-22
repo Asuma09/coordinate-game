@@ -44,12 +44,20 @@ export default async function CollectionPage() {
         </form>
       </div>
 
-      <Link
-        href="/outfits/new"
-        className="rounded-md bg-black px-3 py-2 text-center text-white"
-      >
-        コーデを撮影する
-      </Link>
+      <div className="flex gap-3">
+        <Link
+          href="/outfits/new"
+          className="flex-1 rounded-md bg-black px-3 py-2 text-center text-white"
+        >
+          コーデを撮影する
+        </Link>
+        <Link
+          href="/ranking"
+          className="rounded-md border border-gray-300 px-3 py-2 text-center text-sm"
+        >
+          ランキング
+        </Link>
+      </div>
 
       {outfits && outfits.length > 0 ? (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">

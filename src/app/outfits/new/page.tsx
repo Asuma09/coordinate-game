@@ -111,11 +111,18 @@ export default function NewOutfitPage() {
       data: { publicUrl },
     } = supabase.storage.from("outfit-photos").getPublicUrl(path);
 
+    const nickname =
+      typeof user.user_metadata?.nickname === "string" &&
+      user.user_metadata.nickname.trim()
+        ? user.user_metadata.nickname
+        : "ゲスト";
+
     const { data: inserted, error: insertError } = await supabase
       .from("outfits")
       .insert({
         user_id: user.id,
         photo_url: publicUrl,
+        nickname,
       })
       .select("id")
       .single();
