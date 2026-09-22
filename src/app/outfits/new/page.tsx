@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { scoreOutfit } from "@/app/actions/score";
 import { illustrateOutfit } from "@/app/actions/illustrate";
 import { BottomNav } from "@/components/bottom-nav";
+import { CameraIcon, PhotoIcon, RefreshIcon } from "@/components/icons";
 
 export default function NewOutfitPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -144,9 +145,9 @@ export default function NewOutfitPage() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-md flex-col gap-4 px-6 py-8 pb-24">
-      <h1 className="text-xl font-bold">コーデを撮影</h1>
+      <h1 className="text-xl font-bold text-gray-800">コーデを撮影</h1>
 
-      <div className="relative aspect-square w-full overflow-hidden rounded-md bg-gray-100">
+      <div className="relative aspect-square w-full overflow-hidden rounded-3xl border border-white/60 bg-sky-50 shadow-md shadow-purple-100">
         {previewUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -186,15 +187,17 @@ export default function NewOutfitPage() {
             type="button"
             onClick={handleCapture}
             disabled={cameraError}
-            className="flex-1 rounded-md bg-black px-3 py-2 text-white disabled:opacity-30"
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-pink-400 via-rose-400 to-orange-300 px-3 py-2.5 font-semibold text-white shadow-md shadow-pink-200 disabled:opacity-30"
           >
+            <CameraIcon className="h-4 w-4" />
             撮影する
           </button>
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+            className="flex items-center justify-center gap-1.5 rounded-full border border-purple-100 bg-white/80 px-3 py-2.5 text-sm text-gray-600 shadow-sm"
           >
+            <PhotoIcon className="h-4 w-4" />
             写真を選択
           </button>
         </div>
@@ -205,15 +208,16 @@ export default function NewOutfitPage() {
           <button
             type="button"
             onClick={handleRetake}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+            className="flex items-center justify-center gap-1.5 rounded-full border border-purple-100 bg-white/80 px-3 py-2.5 text-sm text-gray-600 shadow-sm"
           >
+            <RefreshIcon className="h-4 w-4" />
             撮り直す
           </button>
           <button
             type="button"
             onClick={handleSave}
             disabled={status === "saving" || status === "scoring"}
-            className="flex-1 rounded-md bg-black px-3 py-2 text-white disabled:opacity-50"
+            className="flex-1 rounded-full bg-gradient-to-r from-pink-400 via-rose-400 to-orange-300 px-3 py-2.5 font-semibold text-white shadow-md shadow-pink-200 disabled:opacity-50"
           >
             {status === "saving"
               ? "保存中..."

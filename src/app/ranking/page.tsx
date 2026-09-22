@@ -22,12 +22,12 @@ export default async function RankingPage() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-6 px-6 py-10 pb-24">
-      <h1 className="text-2xl font-bold">ランキング</h1>
+      <h1 className="text-2xl font-bold text-gray-800">ランキング</h1>
 
       {outfits && outfits.length > 0 ? (
         <RankingList outfits={outfits} />
       ) : (
-        <p className="text-sm text-gray-500">
+        <p className="rounded-3xl border border-white/60 bg-white/80 p-6 text-center text-sm text-gray-500 shadow-md shadow-purple-100 backdrop-blur-md">
           まだ採点されたコーデがありません。
         </p>
       )}
