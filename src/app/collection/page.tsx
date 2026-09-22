@@ -1,8 +1,8 @@
 import Image from "next/image";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { signOut } from "@/app/actions/auth";
+import { BottomNav } from "@/components/bottom-nav";
 
 export default async function CollectionPage() {
   const supabase = await createClient();
@@ -26,7 +26,7 @@ export default async function CollectionPage() {
       : null;
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-6 px-6 py-10">
+    <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-6 px-6 py-10 pb-24">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">コレクション</h1>
@@ -42,21 +42,6 @@ export default async function CollectionPage() {
             ログアウト
           </button>
         </form>
-      </div>
-
-      <div className="flex gap-3">
-        <Link
-          href="/outfits/new"
-          className="flex-1 rounded-md bg-black px-3 py-2 text-center text-white"
-        >
-          コーデを撮影する
-        </Link>
-        <Link
-          href="/ranking"
-          className="rounded-md border border-gray-300 px-3 py-2 text-center text-sm"
-        >
-          ランキング
-        </Link>
       </div>
 
       {outfits && outfits.length > 0 ? (
@@ -93,6 +78,7 @@ export default async function CollectionPage() {
           まだコーデが登録されていません。カメラでコーデを撮影しましょう。
         </p>
       )}
+      <BottomNav />
     </main>
   );
 }

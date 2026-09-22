@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { BottomNav } from "@/components/bottom-nav";
 import { RankingList } from "./ranking-list";
 
 export default async function RankingPage() {
@@ -21,16 +21,8 @@ export default async function RankingPage() {
     .limit(100);
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-6 px-6 py-10">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">ランキング</h1>
-        <Link
-          href="/collection"
-          className="rounded-md border border-gray-300 px-3 py-1.5 text-sm"
-        >
-          コレクションへ
-        </Link>
-      </div>
+    <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-6 px-6 py-10 pb-24">
+      <h1 className="text-2xl font-bold">ランキング</h1>
 
       {outfits && outfits.length > 0 ? (
         <RankingList outfits={outfits} />
@@ -39,6 +31,7 @@ export default async function RankingPage() {
           まだ採点されたコーデがありません。
         </p>
       )}
+      <BottomNav />
     </main>
   );
 }

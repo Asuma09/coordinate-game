@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { scoreOutfit } from "@/app/actions/score";
 import { illustrateOutfit } from "@/app/actions/illustrate";
+import { BottomNav } from "@/components/bottom-nav";
 
 export default function NewOutfitPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -142,7 +143,7 @@ export default function NewOutfitPage() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col gap-4 px-6 py-8">
+    <main className="mx-auto flex min-h-screen max-w-md flex-col gap-4 px-6 py-8 pb-24">
       <h1 className="text-xl font-bold">コーデを撮影</h1>
 
       <div className="relative aspect-square w-full overflow-hidden rounded-md bg-gray-100">
@@ -228,6 +229,7 @@ export default function NewOutfitPage() {
           保存に失敗しました。もう一度お試しください。
         </p>
       )}
+      <BottomNav />
     </main>
   );
 }
