@@ -20,10 +20,20 @@ export default async function CollectionPage() {
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
+  const nickname =
+    typeof user.user_metadata?.nickname === "string"
+      ? user.user_metadata.nickname
+      : null;
+
   return (
     <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-6 px-6 py-10">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">コレクション</h1>
+        <div>
+          <h1 className="text-2xl font-bold">コレクション</h1>
+          {nickname && (
+            <p className="mt-1 text-sm text-gray-500">{nickname} さん</p>
+          )}
+        </div>
         <form action={signOut}>
           <button
             type="submit"

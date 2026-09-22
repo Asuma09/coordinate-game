@@ -4,13 +4,19 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
+  const [nickname, setNickname] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
 
   async function handleGuestLogin() {
     setStatus("loading");
 
     const supabase = createClient();
-    const { error } = await supabase.auth.signInAnonymously();
+    const trimmedNickname = nickname.trim();
+    const { error } = await supabase.auth.signInAnonymously({
+      options: {
+        data: trimmedNickname ? { nickname: trimmedNickname } : {},
+      },
+    });
 
     if (error) {
       setStatus("error");
@@ -27,6 +33,21 @@ export default function LoginPage() {
         <p className="mt-2 text-sm text-gray-500">
           メール登録不要。ボタン一つでゲストとして始められます。
         </p>
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="nickname" className="text-sm text-gray-700">
+          ニックネーム（任意）
+        </label>
+        <input
+          id="nickname"
+          type="text"
+          value={nickname}
+          onChange={(event) => setNickname(event.target.value)}
+          maxLength={20}
+          placeholder="例: あすま"
+          className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+        />
       </div>
 
       <button
