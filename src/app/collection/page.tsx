@@ -91,7 +91,9 @@ export default async function CollectionPage() {
                   : "未採点"}
               </p>
               {outfit.comment && (
-                <p className="text-xs text-gray-500">{outfit.comment}</p>
+                <p className="whitespace-pre-line text-xs text-gray-500">
+                  {outfit.comment}
+                </p>
               )}
             </div>
           ))}
