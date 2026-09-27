@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { ScoreBreakdownBars, type ScoreBreakdown } from "@/components/score-breakdown";
 
 type RankingOutfit = {
   id: string;
@@ -9,6 +10,7 @@ type RankingOutfit = {
   score_total: number | null;
   photo_url: string;
   illustration_url: string | null;
+  score_breakdown: ScoreBreakdown;
 };
 
 const RANK_BADGE = [
@@ -49,14 +51,19 @@ export function RankingList({ outfits }: { outfits: RankingOutfit[] }) {
             </button>
 
             {isOpen && (
-              <div className="relative aspect-square w-full border-t border-white/60 bg-sky-50">
-                <Image
-                  src={outfit.illustration_url ?? outfit.photo_url}
-                  alt={`${outfit.nickname ?? "ゲスト"}のコーデ`}
-                  fill
-                  sizes="(min-width: 640px) 512px, 100vw"
-                  className="object-cover"
-                />
+              <div className="border-t border-white/60">
+                <div className="relative aspect-square w-full bg-sky-50">
+                  <Image
+                    src={outfit.illustration_url ?? outfit.photo_url}
+                    alt={`${outfit.nickname ?? "ゲスト"}のコーデ`}
+                    fill
+                    sizes="(min-width: 640px) 512px, 100vw"
+                    className="object-cover"
+                  />
+                </div>
+                <div className="px-4 py-3">
+                  <ScoreBreakdownBars breakdown={outfit.score_breakdown} />
+                </div>
               </div>
             )}
           </li>

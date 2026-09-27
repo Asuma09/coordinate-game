@@ -1,10 +1,10 @@
-import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { signOut } from "@/app/actions/auth";
 import { BottomNav } from "@/components/bottom-nav";
 import { CameraIcon, CrownIcon, LogoutIcon } from "@/components/icons";
+import { OutfitCard } from "./outfit-card";
 
 export default async function CollectionPage() {
   const supabase = await createClient();
@@ -18,7 +18,9 @@ export default async function CollectionPage() {
 
   const { data: outfits } = await supabase
     .from("outfits")
-    .select("id, photo_url, illustration_url, score_total, comment")
+    .select(
+      "id, photo_url, illustration_url, score_total, comment, score_breakdown",
+    )
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
@@ -67,35 +69,7 @@ export default async function CollectionPage() {
       {outfits && outfits.length > 0 ? (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {outfits.map((outfit) => (
-            <div
-              key={outfit.id}
-              className="flex flex-col gap-1.5 rounded-3xl border border-white/60 bg-white/80 p-2.5 shadow-md shadow-purple-100 backdrop-blur-md"
-            >
-              <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-sky-50">
-                <Image
-                  src={outfit.illustration_url ?? outfit.photo_url}
-                  alt="撮影したコーデ"
-                  fill
-                  sizes="(min-width: 640px) 33vw, 50vw"
-                  className="object-cover"
-                />
-                {!outfit.illustration_url && (
-                  <p className="absolute bottom-1 right-1 rounded-full bg-black/60 px-1.5 py-0.5 text-[10px] text-white">
-                    イラスト生成中...
-                  </p>
-                )}
-              </div>
-              <p className="text-xs font-semibold text-gray-700">
-                {outfit.score_total != null
-                  ? `スコア: ${outfit.score_total}点`
-                  : "未採点"}
-              </p>
-              {outfit.comment && (
-                <p className="whitespace-pre-line text-xs text-gray-500">
-                  {outfit.comment}
-                </p>
-              )}
-            </div>
+            <OutfitCard key={outfit.id} outfit={outfit} />
           ))}
         </div>
       ) : (

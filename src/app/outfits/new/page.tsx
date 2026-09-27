@@ -7,6 +7,37 @@ import { illustrateOutfit } from "@/app/actions/illustrate";
 import { BottomNav } from "@/components/bottom-nav";
 import { CameraIcon, PhotoIcon, RefreshIcon } from "@/components/icons";
 
+const MAX_DIMENSION = 1280;
+const JPEG_QUALITY = 0.85;
+
+// 画像をcanvasで最大辺1280pxに縮小し、JPEG(quality 0.85)に再エンコードして
+// アップロード容量とAI採点・イラスト生成にかかる時間を抑える。
+async function compressImage(source: Blob): Promise<Blob> {
+  try {
+    const bitmap = await createImageBitmap(source);
+    const scale = Math.min(
+      1,
+      MAX_DIMENSION / Math.max(bitmap.width, bitmap.height),
+    );
+    const width = Math.round(bitmap.width * scale);
+    const height = Math.round(bitmap.height * scale);
+
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return source;
+    ctx.drawImage(bitmap, 0, 0, width, height);
+
+    const blob = await new Promise<Blob | null>((resolve) =>
+      canvas.toBlob(resolve, "image/jpeg", JPEG_QUALITY),
+    );
+    return blob ?? source;
+  } catch {
+    return source;
+  }
+}
+
 export default function NewOutfitPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -16,6 +47,7 @@ export default function NewOutfitPage() {
   const [cameraError, setCameraError] = useState(false);
   const [capturedBlob, setCapturedBlob] = useState<Blob | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [status, setStatus] = useState<
     "idle" | "saving" | "scoring" | "error"
   >("idle");
@@ -55,11 +87,15 @@ export default function NewOutfitPage() {
     const canvas = canvasRef.current;
     if (!video || !canvas) return;
 
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+    const scale = Math.min(
+      1,
+      MAX_DIMENSION / Math.max(video.videoWidth, video.videoHeight),
+    );
+    canvas.width = Math.round(video.videoWidth * scale);
+    canvas.height = Math.round(video.videoHeight * scale);
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    ctx.drawImage(video, 0, 0);
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
     canvas.toBlob(
       (blob) => {
@@ -68,15 +104,23 @@ export default function NewOutfitPage() {
         setPreviewUrl(URL.createObjectURL(blob));
       },
       "image/jpeg",
-      0.9,
+      JPEG_QUALITY,
     );
   }
 
-  function handleFileSelect(event: React.ChangeEvent<HTMLInputElement>) {
+  async function handleFileSelect(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
-    setCapturedBlob(file);
-    setPreviewUrl(URL.createObjectURL(file));
+
+    setIsProcessing(true);
+    try {
+      const compressed = await compressImage(file);
+      setCapturedBlob(compressed);
+      setPreviewUrl(URL.createObjectURL(compressed));
+    } finally {
+      setIsProcessing(false);
+      event.target.value = "";
+    }
   }
 
   function handleRetake() {
@@ -195,10 +239,11 @@ export default function NewOutfitPage() {
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="flex items-center justify-center gap-1.5 rounded-full border border-purple-100 bg-white/80 px-3 py-2.5 text-sm text-gray-600 shadow-sm"
+            disabled={isProcessing}
+            className="flex items-center justify-center gap-1.5 rounded-full border border-purple-100 bg-white/80 px-3 py-2.5 text-sm text-gray-600 shadow-sm disabled:opacity-50"
           >
             <PhotoIcon className="h-4 w-4" />
-            写真を選択
+            {isProcessing ? "処理中..." : "写真を選択"}
           </button>
         </div>
       )}
