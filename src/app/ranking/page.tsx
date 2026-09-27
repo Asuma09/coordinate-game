@@ -52,7 +52,7 @@ export default async function RankingPage(props: PageProps<"/ranking">) {
   let query = supabase
     .from("outfits")
     .select(
-      "id, nickname, score_total, photo_url, illustration_url, score_breakdown",
+      "id, user_id, nickname, score_total, photo_url, illustration_url, score_breakdown, comment",
     )
     .not("score_total", "is", null)
     .order("score_total", { ascending: false })
@@ -64,6 +64,7 @@ export default async function RankingPage(props: PageProps<"/ranking">) {
   }
 
   const { data: outfits } = await query;
+  const ownIndex = outfits?.findIndex((outfit) => outfit.user_id === user.id) ?? -1;
 
   return (
     <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-6 px-6 py-10 pb-24">
@@ -90,8 +91,22 @@ export default async function RankingPage(props: PageProps<"/ranking">) {
         })}
       </div>
 
+      {outfits && outfits.length > 0 && (
+        <div
+          className={`rounded-full px-4 py-2 text-center text-sm font-semibold shadow-sm ${
+            ownIndex !== -1
+              ? "bg-gradient-to-r from-pink-100 to-purple-100 text-purple-600"
+              : "bg-white/70 text-gray-400"
+          }`}
+        >
+          {ownIndex !== -1
+            ? `あなたの順位: ${ownIndex + 1}位（${outfits[ownIndex].score_total}点）`
+            : "このランキングにはまだあなたのコーデがありません"}
+        </div>
+      )}
+
       {outfits && outfits.length > 0 ? (
-        <RankingList outfits={outfits} />
+        <RankingList outfits={outfits} currentUserId={user.id} />
       ) : (
         <p className="rounded-3xl border border-white/60 bg-white/80 p-6 text-center text-sm text-gray-500 shadow-md shadow-purple-100 backdrop-blur-md">
           まだ採点されたコーデがありません。

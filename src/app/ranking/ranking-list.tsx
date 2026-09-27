@@ -6,11 +6,13 @@ import { ScoreBreakdownBars, type ScoreBreakdown } from "@/components/score-brea
 
 type RankingOutfit = {
   id: string;
+  user_id: string;
   nickname: string | null;
   score_total: number | null;
   photo_url: string;
   illustration_url: string | null;
   score_breakdown: ScoreBreakdown;
+  comment: string | null;
 };
 
 const RANK_BADGE = [
@@ -19,18 +21,27 @@ const RANK_BADGE = [
   "bg-gradient-to-br from-orange-300 to-amber-500 text-white",
 ];
 
-export function RankingList({ outfits }: { outfits: RankingOutfit[] }) {
+export function RankingList({
+  outfits,
+  currentUserId,
+}: {
+  outfits: RankingOutfit[];
+  currentUserId: string;
+}) {
   const [openId, setOpenId] = useState<string | null>(null);
 
   return (
     <ul className="flex flex-col gap-2.5">
       {outfits.map((outfit, index) => {
         const isOpen = openId === outfit.id;
+        const isOwn = outfit.user_id === currentUserId;
         const badgeClass = RANK_BADGE[index] ?? "bg-purple-100 text-purple-500";
         return (
           <li
             key={outfit.id}
-            className="overflow-hidden rounded-3xl border border-white/60 bg-white/80 shadow-md shadow-purple-100 backdrop-blur-md"
+            className={`overflow-hidden rounded-3xl border bg-white/80 shadow-md shadow-purple-100 backdrop-blur-md ${
+              isOwn ? "border-pink-300 ring-2 ring-pink-200" : "border-white/60"
+            }`}
           >
             <button
               type="button"
@@ -42,8 +53,13 @@ export function RankingList({ outfits }: { outfits: RankingOutfit[] }) {
               >
                 {index + 1}
               </span>
-              <span className="flex-1 truncate text-sm font-semibold text-gray-700">
-                {outfit.nickname ?? "ゲスト"}
+              <span className="flex flex-1 items-center gap-1.5 truncate text-sm font-semibold text-gray-700">
+                <span className="truncate">{outfit.nickname ?? "ゲスト"}</span>
+                {isOwn && (
+                  <span className="shrink-0 rounded-full bg-pink-400 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                    あなた
+                  </span>
+                )}
               </span>
               <span className="shrink-0 text-sm font-bold text-pink-500">
                 {outfit.score_total}点
@@ -61,8 +77,13 @@ export function RankingList({ outfits }: { outfits: RankingOutfit[] }) {
                     className="object-cover"
                   />
                 </div>
-                <div className="px-4 py-3">
+                <div className="flex flex-col gap-2 px-4 py-3">
                   <ScoreBreakdownBars breakdown={outfit.score_breakdown} />
+                  {outfit.comment && (
+                    <p className="whitespace-pre-line text-xs text-gray-500">
+                      {outfit.comment}
+                    </p>
+                  )}
                 </div>
               </div>
             )}

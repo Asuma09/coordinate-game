@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { scoreOutfit } from "@/app/actions/score";
 import { illustrateOutfit } from "@/app/actions/illustrate";
@@ -39,6 +40,7 @@ async function compressImage(source: Blob): Promise<Blob> {
 }
 
 export default function NewOutfitPage() {
+  const router = useRouter();
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -48,9 +50,20 @@ export default function NewOutfitPage() {
   const [capturedBlob, setCapturedBlob] = useState<Blob | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [nickname, setNickname] = useState("");
   const [status, setStatus] = useState<
     "idle" | "saving" | "scoring" | "error"
   >("idle");
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      const metaNickname = user?.user_metadata?.nickname;
+      if (typeof metaNickname === "string" && metaNickname.trim()) {
+        setNickname(metaNickname);
+      }
+    });
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -157,18 +170,14 @@ export default function NewOutfitPage() {
       data: { publicUrl },
     } = supabase.storage.from("outfit-photos").getPublicUrl(path);
 
-    const nickname =
-      typeof user.user_metadata?.nickname === "string" &&
-      user.user_metadata.nickname.trim()
-        ? user.user_metadata.nickname
-        : "ゲスト";
+    const trimmedNickname = nickname.trim() || "ゲスト";
 
     const { data: inserted, error: insertError } = await supabase
       .from("outfits")
       .insert({
         user_id: user.id,
         photo_url: publicUrl,
-        nickname,
+        nickname: trimmedNickname,
       })
       .select("id")
       .single();
@@ -179,17 +188,32 @@ export default function NewOutfitPage() {
     }
 
     setStatus("scoring");
-    await Promise.all([
-      scoreOutfit(inserted.id),
-      illustrateOutfit(inserted.id),
-    ]);
+    // 採点が終わり次第すぐコレクションに遷移する。イラスト生成は裏側で継続し、
+    // コレクション側でポーリングして完成次第反映する（体感速度優先）。
+    await scoreOutfit(inserted.id);
+    illustrateOutfit(inserted.id).catch(() => {});
 
-    window.location.href = "/collection";
+    router.push("/collection");
   }
 
   return (
     <main className="mx-auto flex min-h-screen max-w-md flex-col gap-4 px-6 py-8 pb-24">
       <h1 className="text-xl font-bold text-gray-800">コーデを撮影</h1>
+
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="nickname" className="text-sm text-gray-600">
+          表示名（このコーデ用）
+        </label>
+        <input
+          id="nickname"
+          type="text"
+          value={nickname}
+          onChange={(event) => setNickname(event.target.value)}
+          maxLength={20}
+          placeholder="例: あすま"
+          className="rounded-2xl border border-purple-100 bg-white/80 px-4 py-2.5 text-sm shadow-sm focus:border-purple-300 focus:outline-none"
+        />
+      </div>
 
       <div className="relative aspect-square w-full overflow-hidden rounded-3xl border border-white/60 bg-sky-50 shadow-md shadow-purple-100">
         {previewUrl ? (
@@ -267,7 +291,7 @@ export default function NewOutfitPage() {
             {status === "saving"
               ? "保存中..."
               : status === "scoring"
-                ? "AIが採点・イラスト生成中..."
+                ? "AIが採点中..."
                 : "保存する"}
           </button>
         </div>
