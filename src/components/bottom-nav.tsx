@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CameraIcon, GridIcon, CrownIcon } from "@/components/icons";
+import { CameraIcon, GridIcon, CrownIcon, UserIcon } from "@/components/icons";
 
 const NAV_ITEMS = [
   {
@@ -22,6 +22,12 @@ const NAV_ITEMS = [
     label: "ランキング",
     Icon: CrownIcon,
     gradient: "from-violet-400 to-purple-400",
+  },
+  {
+    href: "/mypage",
+    label: "マイページ",
+    Icon: UserIcon,
+    gradient: "from-emerald-400 to-teal-400",
   },
 ];
 
